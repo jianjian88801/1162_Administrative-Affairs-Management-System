@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BangongshiShenqingDao">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiaoshi_id as jiaoshiId
+        ,a.bangongshi_id as bangongshiId
+        ,a.insert_time as insertTime
+        ,a.bangongshi_shenqing_yesno_types as bangongshiShenqingYesnoTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.BangongshiShenqingView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,bangongshi.bangongshi_name as bangongshiName
+        ,bangongshi.bangongshi_address as bangongshiAddress
+        ,jiaoshi.jiaoshi_name as jiaoshiName
+        ,jiaoshi.jiaoshi_id_number as jiaoshiIdNumber
+        ,jiaoshi.jiaoshi_phone as jiaoshiPhone
+        ,jiaoshi.jiaoshi_photo as jiaoshiPhoto
+        ,jiaoshi.jiaoshi_delete as jiaoshiDelete
+
+        FROM bangongshi_shenqing  a
+        left JOIN bangongshi bangongshi ON a.bangongshi_id = bangongshi.id
+        left JOIN jiaoshi jiaoshi ON a.jiaoshi_id = jiaoshi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.jiaoshiId != null and params.jiaoshiId != ''">
+                and a.jiaoshi_id = #{params.jiaoshiId}
+            </if>
+            <if test="params.bangongshiId != null and params.bangongshiId != ''">
+                and a.bangongshi_id = #{params.bangongshiId}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.bangongshiShenqingYesnoTypes != null and params.bangongshiShenqingYesnoTypes != ''">
+                and a.bangongshi_shenqing_yesno_types = #{params.bangongshiShenqingYesnoTypes}
+            </if>
+
+                <!-- 判断办公室的id不为空 -->
+            <if test=" params.bangongshiIdNotNull != '' and params.bangongshiIdNotNull != null and params.bangongshiIdNotNull != 'null' ">
+                and a.bangongshi_id IS NOT NULL
+            </if>
+            <if test=" params.bangongshiName != '' and params.bangongshiName != null and params.bangongshiName != 'null' ">
+                and bangongshi.bangongshi_name like CONCAT('%',#{params.bangongshiName},'%')
+            </if>
+            <if test=" params.bangongshiAddress != '' and params.bangongshiAddress != null and params.bangongshiAddress != 'null' ">
+                and bangongshi.bangongshi_address like CONCAT('%',#{params.bangongshiAddress},'%')
+            </if>
+                <!-- 判断教师的id不为空 -->
+            <if test=" params.jiaoshiIdNotNull != '' and params.jiaoshiIdNotNull != null and params.jiaoshiIdNotNull != 'null' ">
+                and a.jiaoshi_id IS NOT NULL
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and jiaoshi.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test=" params.jiaoshiIdNumber != '' and params.jiaoshiIdNumber != null and params.jiaoshiIdNumber != 'null' ">
+                and jiaoshi.jiaoshi_id_number like CONCAT('%',#{params.jiaoshiIdNumber},'%')
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and jiaoshi.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+            <if test="params.jiaoshiDeleteStart != null  and params.jiaoshiDeleteStart != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete >= #{params.jiaoshiDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaoshiDeleteEnd != null  and params.jiaoshiDeleteEnd != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete <= #{params.jiaoshiDeleteEnd}   ]]>
+            </if>
+            <if test="params.jiaoshiDelete != null  and params.jiaoshiDelete != '' ">
+                and jiaoshi.jiaoshi_delete = #{params.jiaoshiDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

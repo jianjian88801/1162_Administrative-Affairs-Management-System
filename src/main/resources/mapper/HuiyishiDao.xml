@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.HuiyishiDao">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.huiyishi_uuid_number as huiyishiUuidNumber
+        ,a.huiyishi_address as huiyishiAddress
+        ,a.huiyishi_size as huiyishiSize
+        ,a.huiyishi_types as huiyishiTypes
+        ,a.zhuangtai_types as zhuangtaiTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.HuiyishiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM huiyishi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.huiyishiUuidNumber != '' and params.huiyishiUuidNumber != null and params.huiyishiUuidNumber != 'null' ">
+                and a.huiyishi_uuid_number like CONCAT('%',#{params.huiyishiUuidNumber},'%')
+            </if>
+            <if test=" params.huiyishiAddress != '' and params.huiyishiAddress != null and params.huiyishiAddress != 'null' ">
+                and a.huiyishi_address like CONCAT('%',#{params.huiyishiAddress},'%')
+            </if>
+            <if test=" params.huiyishiSize != '' and params.huiyishiSize != null and params.huiyishiSize != 'null' ">
+                and a.huiyishi_size like CONCAT('%',#{params.huiyishiSize},'%')
+            </if>
+            <if test="params.huiyishiTypes != null and params.huiyishiTypes != ''">
+                and a.huiyishi_types = #{params.huiyishiTypes}
+            </if>
+            <if test="params.zhuangtaiTypes != null and params.zhuangtaiTypes != ''">
+                and a.zhuangtai_types = #{params.zhuangtaiTypes}
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
